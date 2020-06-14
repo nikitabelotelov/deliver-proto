@@ -137,6 +137,7 @@ function Editor() {
                 const parsedData = JSON.parse(serialized)
                 setNodes(parsedData.nodes)
                 setEdges(parsedData.edges)
+                setLoaderMessage("Loaded successfully!")
               } catch(e) {
                 console.error(e)
                 setLoaderMessage('Parse error! Check console.')
