@@ -1,0 +1,29 @@
+.editor_node {
+  position: absolute;
+  width: 30px;
+  height: 30px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  user-select: none;
+  cursor: pointer;
+  border: 1px solid darksalmon;
+  border-radius: 50%;
+  background-color: lightsalmon;
+  z-index: 2;
+}
+
+.editor_edge {
+  position: absolute;
+  height: 2px;
+  background-color: lightgray;
+}
+
+.editor_nodeArea {
+  position: relative;
+  height: 800px;
+  width: 800px;
+  margin-left: 50px;
+  margin-top: 50px;
+  border: 1px solid black;
+}
