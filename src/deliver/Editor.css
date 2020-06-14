@@ -1,3 +1,8 @@
+.root {
+  display: flex;
+  margin: 50px;
+}
+
 .editor_node {
   position: absolute;
   width: 30px;
@@ -13,17 +18,54 @@
   z-index: 2;
 }
 
+.editor_startNode {
+  background-color: orangered;
+}
+
+.editor_controlPanel {
+  display: flex;
+  flex-direction: column;
+}
+
+.editor_controlPanel_item {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-weight: bold;
+  margin: 10px 20px;
+  height: 70px;
+  width: 70px;
+  cursor: pointer;
+  background-color: beige;
+  border: 1px solid transparent;
+  border-radius: 50%;
+}
+
 .editor_edge {
   position: absolute;
   height: 2px;
   background-color: lightgray;
 }
 
+.editor_edge-remove {
+  height: 10px;
+}
+
+.editor_edge-remove:hover {
+  background-color: darkgray;
+}
+
 .editor_nodeArea {
   position: relative;
   height: 800px;
   width: 800px;
-  margin-left: 50px;
-  margin-top: 50px;
   border: 1px solid black;
+}
+
+.editor_mode {
+  position: absolute;
+  top: 5px;
+  left: 5px;
+  user-select: none;
+  color: lightgrey;
 }
