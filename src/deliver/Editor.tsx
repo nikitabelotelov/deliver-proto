@@ -2,6 +2,7 @@ import React, { useEffect, useState, useRef } from "react";
 import "./Editor.css";
 import { EACCES } from "constants";
 import { start } from "repl";
+import { debugPort } from "process";
 
 interface INode {
   left: number;
@@ -10,8 +11,8 @@ interface INode {
 }
 
 interface IEdge {
-  a: INode;
-  b: INode;
+  a: number;
+  b: number;
 }
 
 interface IDragged {
@@ -35,7 +36,17 @@ function Editor() {
   const [mode, setMode] = useState<Mode>(Mode.move);
   const [dragged, setDragged] = useState<IDragged>();
   const [startNode, setStartNode] = useState<INode>()
-  const ref = useRef(null);
+  const [loaderMessage, setLoaderMessage] = useState<string>('')
+  const nodeAreaRef = useRef<HTMLDivElement>(null);
+  const saveInputRef = useRef<HTMLInputElement>(null);
+  const loadInputRef = useRef<HTMLInputElement>(null);
+  useEffect(() => {
+    if(loaderMessage) {
+      setTimeout(() => {
+        setLoaderMessage('')
+      }, 2000)
+    }
+  }, [loaderMessage])
   useEffect(() => {
     const newNodes = [
       { left: 40, top: 40, id: 0 },
@@ -45,23 +56,23 @@ function Editor() {
     setNodes(newNodes);
     setEdges([
       {
-        a: newNodes[0],
-        b: newNodes[1],
+        a: 0,
+        b: 1,
       },
       {
-        a: newNodes[2],
-        b: newNodes[1],
+        a: 2,
+        b: 1,
       },
       {
-        a: newNodes[0],
-        b: newNodes[2],
+        a: 0,
+        b: 2,
       },
     ]);
   }, []);
   function removeNode(node: INode) {
     setNodes(nodes.filter(el => el !== node))
     setEdges(edges.filter((el) => {
-      return el.a !== node && el.b !== node
+      return el.a !== node.id && el.b !== node.id
     }))
   }
   return (
@@ -85,13 +96,13 @@ function Editor() {
       </div>
       <div
         className="editor_nodeArea"
-        ref={ref}
+        ref={nodeAreaRef}
         onClick={(e) => {
-          if (ref.current) {
-            if (e.target === ref.current) {
+          if (nodeAreaRef.current) {
+            if (e.target === nodeAreaRef.current) {
               if (mode === Mode.addNodes) {
                 // @ts-ignore
-                const editAreaRect = ref.current.getBoundingClientRect();
+                const editAreaRect = nodeAreaRef.current.getBoundingClientRect();
                 setNodes([...nodes, {
                   left: e.clientX - editAreaRect.left - 15,
                   top: e.clientY - editAreaRect.top - 15,
@@ -102,9 +113,9 @@ function Editor() {
           }
         }}
         onMouseMove={(e) => {
-          if (dragged && ref.current) {
+          if (dragged && nodeAreaRef.current) {
             // @ts-ignore
-            const editAreaRect = ref.current.getBoundingClientRect();
+            const editAreaRect = nodeAreaRef.current.getBoundingClientRect();
             const x = e.clientX - editAreaRect.left - dragged.pointX;
             const y = e.clientY - editAreaRect.top - dragged.pointY;
             const newNodes = [...nodes];
@@ -116,6 +127,34 @@ function Editor() {
         }}
       >
         <div className="editor_mode">Mode: {mode}</div>
+        <div className="editor_loader">
+          <input ref={loadInputRef} type="text" />
+          <button onClick={() => {
+            const node = loadInputRef.current
+            if (node) {
+              const serialized = node.value
+              try {
+                const parsedData = JSON.parse(serialized)
+                setNodes(parsedData.nodes)
+                setEdges(parsedData.edges)
+              } catch(e) {
+                console.error(e)
+                setLoaderMessage('Parse error! Check console.')
+              }
+            }
+          }} >load</button>
+          <input ref={saveInputRef} type="text" />
+          <button onClick={() => {
+            const node = saveInputRef.current
+            if (node) {
+              node.value = JSON.stringify({ nodes, edges })
+              node.select()
+              document.execCommand('copy')
+              setLoaderMessage('Copied to clipboard!')
+            }
+          }}>save</button>
+          {loaderMessage}
+        </div>
         {nodes.map((el) => {
           return (
             <div
@@ -128,7 +167,7 @@ function Editor() {
                   if (!startNode) {
                     setStartNode(el)
                   } else if (startNode) {
-                    setEdges([...edges, { a: startNode, b: el }])
+                    setEdges([...edges, { a: startNode.id, b: el.id }])
                     setStartNode(undefined)
                   } else if (startNode === el) {
                     setStartNode(undefined)
@@ -155,28 +194,34 @@ function Editor() {
           );
         })}
         {edges.map((el, key) => {
-          const length = Math.sqrt(
-            Math.pow(el.b.left - el.a.left, 2) +
-            Math.pow(el.b.top - el.a.top, 2)
-          );
-          return (
-            <div
-              key={key}
-              className={"editor_edge" + (mode === Mode.removeEdges ? " editor_edge-remove" : '')} 
-              onClick={() => {
-                if(mode === Mode.removeEdges) {
-                  setEdges(edges.filter(edge => el !== edge))
-                }
-              }}
-              style={{
-                width: `${length}px`,
-                left: el.a.left + 15,
-                top: el.a.top + 15,
-                transform: `rotate(${Math.atan2((el.b.top - el.a.top), (el.b.left - el.a.left)) / Math.PI * 180}deg)`,
-                transformOrigin: 'top left'
-              }}
-            ></div>
-          );
+          const a = nodes.find((node) => el.a === node.id)
+          const b = nodes.find((node) => el.b === node.id)
+          if(a && b) {
+            const length = Math.sqrt(
+              Math.pow(b.left - a.left, 2) +
+              Math.pow(b.top - a.top, 2)
+            );
+            return (
+              <div
+                key={key}
+                className={"editor_edge" + (mode === Mode.removeEdges ? " editor_edge-remove" : '')}
+                onClick={() => {
+                  if (mode === Mode.removeEdges) {
+                    setEdges(edges.filter(edge => el !== edge))
+                  }
+                }}
+                style={{
+                  width: `${length}px`,
+                  left: a.left + 15,
+                  top: a.top + 15,
+                  transform: `rotate(${Math.atan2((b.top - a.top), (b.left - a.left)) / Math.PI * 180}deg)`,
+                  transformOrigin: 'top left'
+                }}
+              ></div>
+            );
+          } else {
+            return <></>
+          }
         })}
       </div>
     </div>

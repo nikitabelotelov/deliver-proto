@@ -41,6 +41,16 @@
   border-radius: 50%;
 }
 
+.editor_loader {
+  position: absolute;
+  bottom: -30px;
+  display:flex;
+}
+
+.editor_loader > * {
+  margin: 0 5px;
+}
+
 .editor_edge {
   position: absolute;
   height: 2px;
