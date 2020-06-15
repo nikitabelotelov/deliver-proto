@@ -2,13 +2,20 @@ import React, { useEffect, useState, useRef } from "react";
 import "./Editor.css";
 import Game from "./Game";
 
-interface INode {
+export interface INode {
   left: number;
   top: number;
   id: number;
+  type?: NodeType;
 }
 
-interface IEdge {
+export enum NodeType {
+  default = "default",
+  point = "point",
+  start = "start",
+}
+
+export interface IEdge {
   a: number;
   b: number;
 }
@@ -25,6 +32,7 @@ enum Mode {
   addEdges = "adding edges",
   removeNodes = "remove nodes",
   removeEdges = "remove edges",
+  changeNodeType = "change node types(default, point, start)"
 }
 
 // https://developers.google.com/web/updates/2011/08/Saving-generated-files-on-the-client-side
@@ -79,8 +87,48 @@ function Editor() {
     );
   }
   return (
-    <div>
-      {gameMode ? <Game /> : <div className="root_editor">
+    <div className="root">
+      <div className="top_control">
+        <div onClick={(e) => { setGameMode((value) => !value) }}><input checked={gameMode} type="checkbox" /> Enable game mode</div>
+        <div className="editor_loader">
+          <input ref={loadInputRef} type="text" />
+          <button
+            onClick={() => {
+              const node = loadInputRef.current;
+              if (node) {
+                const serialized = node.value;
+                try {
+                  const parsedData = JSON.parse(serialized);
+                  setNodes(parsedData.nodes);
+                  setEdges(parsedData.edges);
+                  setLoaderMessage("Loaded successfully!");
+                } catch (e) {
+                  console.error(e);
+                  setLoaderMessage("Parse error! Check console.");
+                }
+              }
+            }}
+          >
+            load
+            </button>
+          <input ref={saveInputRef} type="text" />
+          <button
+            onClick={() => {
+              const node = saveInputRef.current;
+              if (node) {
+                node.value = JSON.stringify({ nodes, edges });
+                node.select();
+                document.execCommand("copy");
+                setLoaderMessage("Copied to clipboard!");
+              }
+            }}
+          >
+            save
+            </button>
+          {loaderMessage}
+        </div>
+      </div>
+      {gameMode ? <Game nodes={nodes} edges={edges} /> : <div className="root_editor">
         <div className="editor_controlPanel">
           <div
             onClick={() => {
@@ -122,6 +170,14 @@ function Editor() {
           >
             -edge
           </div>
+          <div
+            onClick={() => {
+              setMode(Mode.changeNodeType);
+            }}
+            className="editor_controlPanel_item"
+          >
+            type
+          </div>
         </div>
         <div
           className="editor_nodeArea"
@@ -160,49 +216,13 @@ function Editor() {
           }}
         >
           <div className="editor_mode">Mode: {mode}</div>
-          <div className="editor_loader">
-            <input ref={loadInputRef} type="text" />
-            <button
-              onClick={() => {
-                const node = loadInputRef.current;
-                if (node) {
-                  const serialized = node.value;
-                  try {
-                    const parsedData = JSON.parse(serialized);
-                    setNodes(parsedData.nodes);
-                    setEdges(parsedData.edges);
-                    setLoaderMessage("Loaded successfully!");
-                  } catch (e) {
-                    console.error(e);
-                    setLoaderMessage("Parse error! Check console.");
-                  }
-                }
-              }}
-            >
-              load
-            </button>
-            <input ref={saveInputRef} type="text" />
-            <button
-              onClick={() => {
-                const node = saveInputRef.current;
-                if (node) {
-                  node.value = JSON.stringify({ nodes, edges });
-                  node.select();
-                  document.execCommand("copy");
-                  setLoaderMessage("Copied to clipboard!");
-                }
-              }}
-            >
-              save
-            </button>
-            {loaderMessage}
-          </div>
           {nodes.map((el) => {
             return (
               <div
                 key={el.id}
+                title={el.type || NodeType.default}
                 className={
-                  "editor_node" + (startNode === el ? " editor_startNode" : "")
+                  "editor_node" + (startNode === el ? " editor_startNode" : "") + ' editor_nodeType-' + (el.type || NodeType.default)
                 }
                 onClick={() => {
                   if (mode === Mode.removeNodes) {
@@ -216,6 +236,15 @@ function Editor() {
                     } else if (startNode === el) {
                       setStartNode(undefined);
                     }
+                  } else if(mode === Mode.changeNodeType) {
+                    if(!el.type || el.type === NodeType.default) {
+                      el.type = NodeType.point
+                    } else if(el.type === NodeType.point) {
+                      el.type = NodeType.start
+                    } else if(el.type === NodeType.start) {
+                      el.type = NodeType.default
+                    }
+                    setNodes([...nodes])
                   }
                 }}
                 onMouseDown={(e) => {
@@ -263,7 +292,7 @@ function Editor() {
                     transform: `rotate(${
                       (Math.atan2(b.top - a.top, b.left - a.left) / Math.PI) *
                       180
-                    }deg)`,
+                      }deg)`,
                     transformOrigin: "top left",
                   }}
                 ></div>
@@ -273,6 +302,7 @@ function Editor() {
             }
           })}
         </div>
+
       </div>}
     </div>
   );

@@ -1,0 +1,43 @@
+.game_node {
+    position: absolute;
+    width: 60px;
+    height: 60px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    user-select: none;
+    cursor: pointer;
+    border: 1px solid transparent;
+    border-radius: 50%;
+    z-index: 2;
+}
+
+.game_nodeType-default {
+    background-color: lightsalmon;
+}
+
+.game_nodeType-point {
+    background-color: #A2E36D;
+}
+
+.game_nodeType-start {
+    background-color: #5481A4;
+}
+
+.game_node-path {
+    border: 1px solid black;
+}
+
+.game_edge {
+    position: absolute;
+    height: 5px;
+    background-color: lightgray;
+}
+
+.game_field {
+    position: relative;
+    border: 1px solid black;
+    width: 800px;
+    height: 800px;
+}
+  

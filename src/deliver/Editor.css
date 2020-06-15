@@ -1,6 +1,17 @@
+.root {
+  margin: 50px;
+  display: flex;
+  flex-direction: column;
+}
+
 .root_editor {
   display: flex;
-  margin: 50px;
+}
+
+.top_control {
+  margin-left: 110px;
+  margin-bottom: 20px;
+  display: flex;
 }
 
 .editor_node {
@@ -12,14 +23,25 @@
   align-items: center;
   user-select: none;
   cursor: pointer;
-  border: 1px solid darksalmon;
+  border: 1px solid transparent;
   border-radius: 50%;
-  background-color: lightsalmon;
   z-index: 2;
 }
 
+.editor_nodeType-default {
+  background-color: lightsalmon;
+}
+
+.editor_nodeType-point {
+  background-color: #A2E36D;
+}
+
+.editor_nodeType-start {
+  background-color: #5481A4;
+}
+
 .editor_startNode {
-  background-color: orangered;
+  filter: brightness(1.5);
 }
 
 .editor_controlPanel {
@@ -42,8 +64,6 @@
 }
 
 .editor_loader {
-  position: absolute;
-  bottom: -30px;
   display:flex;
 }
 
