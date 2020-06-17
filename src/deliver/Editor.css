@@ -47,6 +47,7 @@
 .editor_controlPanel {
   display: flex;
   flex-direction: column;
+  align-items: center;
 }
 
 .editor_controlPanel_item {
@@ -61,6 +62,19 @@
   background-color: beige;
   border: 1px solid transparent;
   border-radius: 50%;
+}
+
+.editor_controlPanel_inputContainer {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  width: 50px;
+  margin: 10px 20px;
+}
+
+.editor_controlPanel_input {
+  width: 50px;
 }
 
 .editor_loader {

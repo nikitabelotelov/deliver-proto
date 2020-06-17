@@ -1,3 +1,7 @@
+.game_root {
+    display: flex;
+}
+
 .game_node {
     position: absolute;
     width: 60px;
@@ -25,13 +29,36 @@
 }
 
 .game_node-path {
-    border: 1px solid black;
+    border: 2px solid black;
 }
 
 .game_edge {
     position: absolute;
     height: 5px;
     background-color: lightgray;
+}
+
+.game_messageBox_message-default {
+    color: darkgrey;
+}
+
+.game_messageBox_message-success {
+    color: lightgreen;
+}
+
+.game_messageBox_message-fail {
+    color: lightsalmon;
+}
+
+.game_messageBox {
+    border: 1px solid black;
+    width: 100px;
+    height: 100px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    flex-wrap: wrap;
 }
 
 .game_field {
