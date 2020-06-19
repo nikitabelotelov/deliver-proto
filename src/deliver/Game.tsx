@@ -87,6 +87,10 @@ function Game(props: IProps) {
               onMouseDown={() => {
                 if (!path.length && el.type === NodeType.start) {
                   setPath([el]);
+                  setMessage({
+                    message: `${1}`,
+                    style: 'default'
+                  })
                   setPathMode(true);
                   setGameStarted(true);
                 }
@@ -102,6 +106,10 @@ function Game(props: IProps) {
                   });
                   if (canVisit && path[path.length - 1] !== el) {
                     setPath([...path, el]);
+                    setMessage({
+                      message: `${path.length + 1}`,
+                      style: 'default'
+                    })
                   }
                 }
               }}

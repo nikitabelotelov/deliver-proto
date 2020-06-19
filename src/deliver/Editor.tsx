@@ -109,6 +109,7 @@ function Editor() {
                   setNodes(parsedData.nodes);
                   setEdges(parsedData.edges);
                   setGoal(parsedData.goal);
+                  setCounter(parsedData.nodes.length)
                   setLoaderMessage("Loaded successfully!");
                 } catch (e) {
                   console.error(e);
